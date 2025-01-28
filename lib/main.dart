@@ -24,6 +24,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: MyHomePage(),
     );
   }
@@ -42,24 +43,26 @@ class _MyHomePageState extends State<MyHomePage>
   late FlutterTts _flutterTts;
   bool _isListening = false;
   String _detectedText = "";
-  final String _selectedLocaleId = "id_ID"; // Default language
+  String _selectedLocaleId = "en-US"; // Default language
   List<LocaleName> _locales = [];
   double speedYou = 0;
   double speedFront = 0;
   double speedFrontRight = 0;
   String overtakingStatus = "Tidak";
   late AnimationController _animationController;
-  bool isCanTriggerAgain = true;
   bool isTTSProcessing = false;
-
+  bool _isVisualEffectTriggered = false;
   late Timer _timer;
+  String _currentLanguageName = "English";
+  bool _isMicrophoneOn = false;
+
   @override
   void initState() {
     super.initState();
-    _initializeTTS();
     _initializePermissions().then((granted) {
       if (granted) {
         _speechToText = SpeechToText();
+        _initializeTTS();
         _initializeSpeechRecognition();
         _startUpdatingSpeedValues();
       } else {
@@ -89,6 +92,9 @@ class _MyHomePageState extends State<MyHomePage>
       onError: (error) {
         debugPrint("Speech error: $error");
         if (_isListening && !isTTSProcessing) {
+          setState(() {
+            _isMicrophoneOn = false;
+          });
           // Tambahkan timeout atau jeda kecil
           Future.delayed(const Duration(milliseconds: 500), () {
             _restartListening();
@@ -99,59 +105,101 @@ class _MyHomePageState extends State<MyHomePage>
 
     if (available) {
       _locales = await _speechToText.locales();
-      setState(() {});
+      setState(() {
+        _isMicrophoneOn = true;
+      });
       _startListening(); // Start listening automatically
     } else {
+      setState(() {
+        _isMicrophoneOn = false;
+      });
       debugPrint("Speech recognition not available");
     }
   }
 
-  void _initializeTTS() {
+  void _initializeTTS() async {
     _flutterTts = FlutterTts();
-    _flutterTts.setLanguage("id-ID"); // Set default language for TTS
-    _flutterTts.setSpeechRate(0.9); // Adjust speech rate
+    _locales = await _speechToText.locales();
+    // for (var locale in _locales) {
+    //   print('ID: ${locale.localeId}, Name: ${locale.name}');
+    // }
+
+    // Cek apakah ada locale bahasa Inggris
+    var englishLocale = _locales.firstWhere(
+      (locale) => locale.localeId == 'en_US', // Prioritaskan en_US
+      orElse: () => _locales.firstWhere(
+        (locale) => locale.localeId
+            .startsWith('en_GB'), // Jika tidak ada en_US, cari en_GB
+        orElse: () => _locales.firstWhere(
+          (locale) => locale.localeId.startsWith('en'), //
+          orElse: () =>
+              _locales.first, // Jika tidak ditemukan, gunakan default pertama
+        ),
+      ),
+    );
+
+    // List<dynamic> languages = await _flutterTts.getLanguages;
+    // print(languages);
+    // // Gunakan locale bahasa Inggris jika tersedia, jika tidak gunakan default
+    _selectedLocaleId = englishLocale.localeId;
+    _currentLanguageName = englishLocale.name;
+    _flutterTts.setLanguage('en-US'); // Set default language for TTS
+    _flutterTts.setSpeechRate(0.5); // Adjust speech rate
     _flutterTts.setPitch(1.0); // Adjust pitch
   }
 
   void _startListening() async {
     if (!_speechToText.isListening) {
       await _speechToText.listen(
-        onResult: (result) {
-          setState(() {
-            if (isCanTriggerAgain && !isTTSProcessing) {
-              dev.log(_detectedText);
+        onResult: (result) async {
+          if (!isTTSProcessing) {
+            dev.log(_detectedText);
+            setState(() {
               _detectedText = result.recognizedWords.toLowerCase();
-
-              if (_detectedText.contains("hai nav") ||
-                  _detectedText.contains("hai naf") ||
-                  _detectedText.contains("hai novi")) {
-                _triggerVisualEffect();
-              }
-
-              if (_detectedText.contains("kecepatan mobil") &&
-                  !isTTSProcessing) {
-                double currentSpeedYou = speedYou;
-                _detectedText = '';
-
-                // Log ketika TTS dipanggil
-                dev.log("sedang dipanggil nich!!!");
-
-                // Panggil TTS
-
-                _respondWithTTS(
-                        "Kecepatan mobilmu saat ini adalah ${currentSpeedYou.toStringAsFixed(1)} km/jam.")
-                    .then((_) {
-                  // Setelah TTS selesai, izinkan trigger lagi
-                });
-              }
+            });
+            // navi effect
+            if ((_detectedText.startsWith("hi") ||
+                        _detectedText.startsWith("hey")) &&
+                    (_detectedText.contains(" naf") ||
+                        _detectedText.contains(" nephe") ||
+                        _detectedText.contains(" not") ||
+                        _detectedText.contains(" enough")) ||
+                _detectedText.contains("i love") ||
+                _detectedText == "hi") {
+              _triggerVisualEffect();
+              return;
             }
-          });
+            // my car speed
+            if (_detectedText.contains("my car speed")) {
+              double currentYourSpeed = speedYou;
+              setState(() {
+                _detectedText = '';
+              });
+              await _respondWithTTS(
+                      "${currentYourSpeed.toStringAsFixed(1)} kilo per hour is the speed of your car.")
+                  .then((_) {
+                // Setelah TTS selesai, izinkan trigger lagi
+              });
+            }
+            // front car speed
+            if (_detectedText.contains("front car speed")) {
+              double currentFrontSpeed = speedFront;
+              setState(() {
+                _detectedText = '';
+              });
+              await _respondWithTTS(
+                      "${currentFrontSpeed.toStringAsFixed(1)} kilo per hour is the speed of front car.")
+                  .then((_) {
+                // Setelah TTS selesai, izinkan trigger lagi
+              });
+            }
+          }
         },
         localeId: _selectedLocaleId,
         listenOptions: SpeechListenOptions(
           cancelOnError: true,
           partialResults: true,
-          listenMode: ListenMode.dictation,
+          listenMode: ListenMode.deviceDefault,
         ),
       );
       setState(() {
@@ -162,32 +210,45 @@ class _MyHomePageState extends State<MyHomePage>
 
   void _restartListening() async {
     await _speechToText.stop();
+    setState(() {
+      _isMicrophoneOn = true;
+    });
     _startListening();
   }
 
   Future<void> _respondWithTTS(String answer) async {
     if (isTTSProcessing) {
       // Jika TTS sedang diproses, tolak panggilan baru
-      dev.log("gakbisa lagi bre");
       return;
     }
-    isTTSProcessing = true; // Tandai TTS sedang diproses
+    setState(() {
+      isTTSProcessing = true; // Tandai TTS sedang diproses
+    });
+    dev.log(isTTSProcessing.toString());
     await _flutterTts.speak(answer);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(answer),
-        duration: const Duration(seconds: 3),
-      ),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(answer),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
     _flutterTts.setCompletionHandler(() {
       _restartListening();
-      isTTSProcessing = false;
-      isCanTriggerAgain = true;
+      setState(() {
+        isTTSProcessing = false;
+      });
+      dev.log(isTTSProcessing.toString());
     });
   }
 
   void _triggerVisualEffect() {
+    if (_isVisualEffectTriggered) {
+      return;
+    }
+    _isVisualEffectTriggered = true;
     // Start the animation
     _animationController.reset();
     _animationController.forward();
@@ -195,6 +256,7 @@ class _MyHomePageState extends State<MyHomePage>
     // Automatically stop the animation and hide the effect after ....time
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
+        _isVisualEffectTriggered = false;
         _animationController.stop();
         _animationController.reset();
         setState(() {
@@ -214,8 +276,8 @@ class _MyHomePageState extends State<MyHomePage>
 
         // Logic to determine overtaking safety
         overtakingStatus = (speedYou > speedFront && speedYou > speedFrontRight)
-            ? "Iya"
-            : "Tidak";
+            ? "Yes"
+            : "No";
       });
     });
   }
@@ -231,7 +293,34 @@ class _MyHomePageState extends State<MyHomePage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Navienta'),
+        actions: [
+          Icon(
+            Icons.language,
+            size: 20,
+            color: Colors.grey[700],
+          ),
+          Text(
+            _currentLanguageName,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[700],
+            ),
+          ),
+          SizedBox(
+            width: 5.0,
+          ),
+        ],
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          fontSize: 20,
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+        ),
+        backgroundColor: Colors.blueAccent[100],
+        title: const Text(
+          'Navienta',
+        ),
       ),
       body: Stack(
         children: [
@@ -243,19 +332,19 @@ class _MyHomePageState extends State<MyHomePage>
                 child: Row(
                   children: [
                     Expanded(
-                        child: _buildGridItem("Kecepatanmu",
+                        child: _buildGridItem("Your Speed",
                             "${speedYou.toStringAsFixed(1)} km/h")),
                     Expanded(
-                        child: _buildGridItem("Kecepatan Mobil Depan",
+                        child: _buildGridItem("Front Car Speed",
                             "${speedFront.toStringAsFixed(1)} km/h")),
                     Expanded(
-                        child: _buildGridItem("Kecepatan Mobil Depan Kanan",
+                        child: _buildGridItem("Front Right Car Speed",
                             "${speedFrontRight.toStringAsFixed(1)} km/h")),
                     Expanded(
                         child: _buildGridItemWhiteText(
-                      "Aman untuk Nyalip?",
+                      "Safe to Overtake?",
                       overtakingStatus,
-                      overtakingStatus == "Iya" ? Colors.green : Colors.red,
+                      overtakingStatus == "Yes" ? Colors.green : Colors.red,
                     )),
                   ],
                 ),
@@ -267,14 +356,12 @@ class _MyHomePageState extends State<MyHomePage>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Listening: ${_isListening ? "Yes" : "No"}',
+                      'Listening: ${!_isMicrophoneOn ? "No, Please Wait" : _isListening ? "Yes" : "No, Please Activate Microphone Permission"}',
                       style: const TextStyle(fontSize: 16),
                     ),
                     Text(
-                      _detectedText.contains('hai nav') ||
-                              _detectedText.contains('hai nov') ||
-                              _detectedText.contains('hai nafi')
-                          ? 'Detected Text: Hai Navi!'
+                      _isVisualEffectTriggered
+                          ? 'Detected Text: Hi Navi!'
                           : 'Detected Text: $_detectedText',
                       style: const TextStyle(fontSize: 16, color: Colors.blue),
                     ),
@@ -291,18 +378,18 @@ class _MyHomePageState extends State<MyHomePage>
                 return Opacity(
                   opacity: _animationController.value,
                   child: Container(
-                    width: 200 * _animationController.value,
-                    height: 200 * _animationController.value,
+                    width: 500 * _animationController.value,
+                    height: 500 * _animationController.value,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.blue.withOpacity(0.3),
+                      color: Colors.blueAccent.withValues(alpha: 0.7),
                     ),
                     child: Center(
                       child: Opacity(
                         opacity: _animationController
                             .value, // Fade-in effect for the text
                         child: const Text(
-                          "Hai Driver!\nMau apa?",
+                          "Hi Driver!\nNeed Something?",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 24,
