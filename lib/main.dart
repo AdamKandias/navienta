@@ -177,9 +177,7 @@ class _MyHomePageState extends State<MyHomePage>
               });
               await _respondWithTTS(
                       "${currentYourSpeed.toStringAsFixed(1)} kilo per hour is the speed of your car.")
-                  .then((_) {
-                // Setelah TTS selesai, izinkan trigger lagi
-              });
+                  .then((_) {});
             }
             // front car speed
             if (_detectedText.contains("front car speed")) {
@@ -189,9 +187,24 @@ class _MyHomePageState extends State<MyHomePage>
               });
               await _respondWithTTS(
                       "${currentFrontSpeed.toStringAsFixed(1)} kilo per hour is the speed of front car.")
-                  .then((_) {
-                // Setelah TTS selesai, izinkan trigger lagi
+                  .then((_) {});
+            }
+            // safe to overtake
+            if (_detectedText.contains("safe to overtake")) {
+              double currentFrontSpeed = speedFront;
+              String overtakingMessage;
+              // Check if overtaking is safe
+              if (overtakingStatus == "Yes") {
+                overtakingMessage = "It is safe to overtake.";
+              } else {
+                overtakingMessage = "It is not safe to overtake.";
+              }
+              setState(() {
+                _detectedText = '';
               });
+              await _respondWithTTS(
+                      "$overtakingMessage, $overtakingMessage, The front car speed is ${currentFrontSpeed.toStringAsFixed(1)} kilo per hour.")
+                  .then((_) {});
             }
           }
         },
@@ -230,7 +243,7 @@ class _MyHomePageState extends State<MyHomePage>
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(answer),
+          content: Text(answer.replaceAll('kilo per hour', 'km/h')),
           duration: const Duration(seconds: 3),
         ),
       );
