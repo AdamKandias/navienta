@@ -10,8 +10,10 @@ dependencies:
   flutter:
     sdk: flutter
   speech_to_text: ^7.0.0
-  permission_handler: ^11.3.1
+  permission_handler: ^11.4.0
   flutter_tts: ^4.2.2
+  speedometer_chart: ^1.0.8
+  flutter_screenutil: ^5.9.3
 
 dev_dependencies:
   flutter_test:
@@ -24,6 +26,38 @@ flutter:
   uses-material-design: true
   assets:
     - assets/icons/
+    - assets/images/
+    - assets/fonts/
+
+  fonts:
+    - family: PlusJakartaSans
+      fonts:
+        - asset: assets/fonts/PlusJakartaSans-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/PlusJakartaSans-Light.ttf
+          weight: 300
+        - asset: assets/fonts/PlusJakartaSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/PlusJakartaSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/PlusJakartaSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/PlusJakartaSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/PlusJakartaSans-ExtraBold.ttf
+          weight: 800
+    - family: Coolvetica
+      fonts:
+        - asset: assets/fonts/Coolvetica-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Coolvetica-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Coolvetica-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Coolvetica-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Coolvetica-ExtraBold.ttf
+          weight: 800
 
 # flutter_native_splash:
 #   color: "#FFFFFF"
