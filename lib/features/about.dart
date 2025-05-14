@@ -5,12 +5,14 @@ import '../constants/app_colors.dart';
 import '../widgets/reusable_text.dart';
 
 class About extends StatelessWidget {
-  const About({super.key});
+  final bool isTablet;
+  const About({super.key, required this.isTablet});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 70.h,
         leading: InkWell(
           onTap: () => Navigator.pop(context),
           child: Icon(
@@ -70,137 +72,133 @@ class About extends StatelessWidget {
             ),
           ),
           child: Row(
-            spacing: 17.w,
+            spacing: isTablet ? 17.w : 10.w,
             children: [
               Expanded(
-                child: Column(
-                  spacing: 9.h,
-                  children: [
-                    Expanded(
-                      child: ReusableText(
+                child: SingleChildScrollView(
+                  child: Column(
+                    spacing: 9.h,
+                    children: [
+                      ReusableText(
                         text:
                             'NAVIENTA adalah solusi inovatif yang mengoptimalkan teknologi LiDAR untuk deteksi objek yang akurat hingga jarak 100 meter, bahkan dalam kondisi kurang ideal.  Sistem ini menyajikan data real-time tentang kecepatan, jarak kendaraan lain, dan potensi bahaya saat menyalip.  Dilengkapi asisten suara, NAVIENTA memungkinkan pengemudi berinteraksi tanpa mengalihkan fokus dari jalan, meningkatkan keselamatan berkendara. Inovasi ini dirancang untuk meningkatkan keamanan, kenyamanan, dan efisiensi pengemudi kendaraan listrik.',
                         fontSize: 6.3,
                         textColor: AppColors.textLight,
                         textAlign: TextAlign.justify,
                       ),
-                    ),
-                    InkWell(
-                      onTap: () {},
-                      child: Container(
-                        padding: EdgeInsets.all(3.w),
-                        decoration: BoxDecoration(
-                          color: AppColors.backgroundPrimary,
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(12.r),
+                      SizedBox(
+                        height: 10.h,
+                      ),
+                      InkWell(
+                        onTap: () {},
+                        child: Container(
+                          padding: EdgeInsets.all(3.w),
+                          decoration: BoxDecoration(
+                            color: AppColors.backgroundPrimary,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(12.r)),
+                          ),
+                          child: Row(
+                            spacing: 3.w,
+                            children: [
+                              Image.asset(
+                                "assets/images/instagram.png",
+                                fit: BoxFit.fill,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                spacing: 2.w,
+                                children: [
+                                  ReusableText(
+                                    textAlign: TextAlign.center,
+                                    text: "Kunjungi Instagram",
+                                    fontSize: 6,
+                                    textColor: AppColors.textDark,
+                                  ),
+                                  Row(
+                                    children: [
+                                      ReusableText(
+                                        textAlign: TextAlign.center,
+                                        text: "NAVI",
+                                        fontSize: 6.5,
+                                        textColor: AppColors.textNavi,
+                                        fontFamily: Assets.fontCoolvetica,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      ReusableText(
+                                        textAlign: TextAlign.center,
+                                        text: "ENTA",
+                                        fontSize: 6.5,
+                                        textColor: AppColors.textPrimary,
+                                        fontFamily: Assets.fontCoolvetica,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
-                        child: Row(
-                          spacing: 3.w,
-                          children: [
-                            Image.asset(
-                              "assets/images/instagram.png",
-                              fit: BoxFit.fill,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              spacing: 2.w,
-                              children: [
-                                ReusableText(
-                                  textAlign: TextAlign.center,
-                                  text: "Kunjungi Instagram",
-                                  fontSize: 6,
-                                  textColor: AppColors.textDark,
-                                ),
-                                Row(
-                                  children: [
-                                    ReusableText(
-                                      textAlign: TextAlign.center,
-                                      text: "NAVI",
-                                      fontSize: 6.5,
-                                      textColor: AppColors.textNavi,
-                                      fontFamily: Assets.fontCoolvetica,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    ReusableText(
-                                      textAlign: TextAlign.center,
-                                      text: "ENTA",
-                                      fontSize: 6.5,
-                                      textColor: AppColors.textPrimary,
-                                      fontFamily: Assets.fontCoolvetica,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
                       ),
-                    ),
-                    InkWell(
-                      onTap: () {},
-                      child: Container(
-                        padding: EdgeInsets.all(3.w),
-                        decoration: BoxDecoration(
-                          color: AppColors.backgroundPrimary,
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(12.r),
+                      InkWell(
+                        onTap: () {},
+                        child: Container(
+                          padding: EdgeInsets.all(3.w),
+                          decoration: BoxDecoration(
+                            color: AppColors.backgroundPrimary,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(12.r)),
+                          ),
+                          child: Row(
+                            spacing: 3.w,
+                            children: [
+                              Image.asset("assets/images/whatsapp.png",
+                                  fit: BoxFit.fill),
+                              ReusableText(
+                                textAlign: TextAlign.center,
+                                text: "Hubungi Customer Service (WA)",
+                                fontSize: 6,
+                                textColor: AppColors.textDark,
+                              ),
+                            ],
                           ),
                         ),
-                        child: Row(
-                          spacing: 3.w,
-                          children: [
-                            Image.asset(
-                              "assets/images/whatsapp.png",
-                              fit: BoxFit.fill,
-                            ),
-                            ReusableText(
-                              textAlign: TextAlign.center,
-                              text: "Hubungi Customer Service (WA)",
-                              fontSize: 6,
-                              textColor: AppColors.textDark,
-                            ),
-                          ],
-                        ),
                       ),
-                    ),
-                    InkWell(
-                      onTap: () {},
-                      child: Container(
-                        padding: EdgeInsets.all(3.w),
-                        decoration: BoxDecoration(
-                          color: AppColors.backgroundPrimary,
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(12.r),
+                      InkWell(
+                        onTap: () {},
+                        child: Container(
+                          padding: EdgeInsets.all(3.w),
+                          decoration: BoxDecoration(
+                            color: AppColors.backgroundPrimary,
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(12.r)),
+                          ),
+                          child: Row(
+                            spacing: 3.w,
+                            children: [
+                              Image.asset("assets/images/message.png",
+                                  fit: BoxFit.fill),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                spacing: 2.w,
+                                children: [
+                                  ReusableText(
+                                    textAlign: TextAlign.center,
+                                    text: "Saran dan masukan",
+                                    fontSize: 6,
+                                    textColor: AppColors.textDark,
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
-                        child: Row(
-                          spacing: 3.w,
-                          children: [
-                            Image.asset(
-                              "assets/images/message.png",
-                              fit: BoxFit.fill,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              spacing: 2.w,
-                              children: [
-                                ReusableText(
-                                  textAlign: TextAlign.center,
-                                  text: "Saran dan masukan",
-                                  fontSize: 6,
-                                  textColor: AppColors.textDark,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               Expanded(

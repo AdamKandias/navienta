@@ -10,7 +10,8 @@ import '../features/faq.dart';
 import 'reusable_text.dart';
 
 class NavientaDrawer extends StatelessWidget {
-  const NavientaDrawer({super.key});
+  final bool isTablet;
+  const NavientaDrawer({super.key, required this.isTablet});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +44,11 @@ class NavientaDrawer extends StatelessWidget {
               InkWell(
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => About()),
+                  MaterialPageRoute(
+                    builder: (context) => About(
+                      isTablet: isTablet,
+                    ),
+                  ),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,

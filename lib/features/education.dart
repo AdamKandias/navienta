@@ -4,19 +4,40 @@ import '../constants/app_colors.dart';
 import '../widgets/reusable_text.dart';
 
 class Education extends StatefulWidget {
-  const Education({super.key});
+  const Education({super.key, this.defaultTab = 1});
+  final int defaultTab;
 
   @override
   State<Education> createState() => _EducationState();
 }
 
-int _pageTab = 1;
-
 class _EducationState extends State<Education> {
+  final ScrollController _contentScrollController = ScrollController();
+
+  @override
+  void initState() {
+    _contentScrollController.animateTo(
+      0,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+    _pageTab = widget.defaultTab;
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _contentScrollController.dispose();
+    super.dispose();
+  }
+
+  int _pageTab = 1;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 70.h,
         leading: InkWell(
           onTap: () => Navigator.pop(context),
           child: Icon(
@@ -75,13 +96,15 @@ class _EducationState extends State<Education> {
             Expanded(
               child: Container(
                 padding: EdgeInsets.all(8.w),
-                height: MediaQuery.of(context).size.height,
                 color: AppColors.primary,
-                child: ReusableText(
-                  text: _pageDetailText(index: _pageTab),
-                  textColor: AppColors.textLight,
-                  textAlign: TextAlign.left,
-                  fontSize: 6.7,
+                child: SingleChildScrollView(
+                  controller: _contentScrollController,
+                  child: ReusableText(
+                    text: _pageDetailText(index: _pageTab),
+                    textColor: AppColors.textLight,
+                    textAlign: TextAlign.left,
+                    fontSize: 6.7,
+                  ),
                 ),
               ),
             ),
@@ -135,6 +158,7 @@ class _EducationState extends State<Education> {
                 onTap: () {
                   setState(() {
                     _pageTab = pageTabIndex;
+                    _contentScrollController.jumpTo(0);
                   });
                 },
                 child: Container(
